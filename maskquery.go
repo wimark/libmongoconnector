@@ -21,6 +21,39 @@ func GetSimpleMaskQuery(mask wimark.SimpleMask) bson.M {
 	return out
 }
 
+// GetBaseLocationMaskQuery Base location UUID OR mask
+func GetBaseLocationMaskQuery(mask wimark.BaseLocationMask) bson.M {
+	var q = []bson.M{}
+
+	if mask.UUID != nil {
+		q = append(q, bson.M{
+			"_id": bson.M{"$in": mask.UUID},
+		})
+	}
+	if mask.ModelID != nil {
+		q = append(q, bson.M{
+			"model_id": bson.M{"$in": mask.ModelID},
+		})
+	}
+	if mask.LocationID != nil {
+		q = append(q, bson.M{
+			"location_id": bson.M{"$in": mask.LocationID},
+		})
+	}
+	if mask.Model != nil {
+		q = append(q, bson.M{
+			"model": bson.M{"$in": mask.Model},
+		})
+	}
+
+	var out = bson.M{}
+	if len(q) > 0 {
+		out["$or"] = q
+	}
+
+	return out
+}
+
 // GetTimestampMaskQuery timestamp query
 func GetTimestampMaskQuery(v wimark.TimestampMask) bson.M {
 	var out = bson.M{}
