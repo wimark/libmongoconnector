@@ -60,8 +60,8 @@ github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5Cc
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
-github.com/wimark/libmongo v1.7.1-0.20230124135107-c7e3696413ca h1:zR5wcQ/090rW5FczTCbxRP7P0Jt1rU12+RWc7G7yvSw=
-github.com/wimark/libmongo v1.7.1-0.20230124135107-c7e3696413ca/go.mod h1:jVpbXmJF/ymfRycx+GQPrKEVooD56ykLJOE6dzICJkE=
+github.com/wimark/libmongo v1.7.1-0.20230124143905-eca6dd21e95d h1:+KIO9GkTNKMtwerp7VAkMnLBgZE4qmklgU28hPSwxK4=
+github.com/wimark/libmongo v1.7.1-0.20230124143905-eca6dd21e95d/go.mod h1:jVpbXmJF/ymfRycx+GQPrKEVooD56ykLJOE6dzICJkE=
 github.com/wimark/libwimark v1.8.3 h1:VVZYZJmPkdr0fpxLmk4OCurAkHo3N9Bo06BxIesy6og=
 github.com/wimark/libwimark v1.8.3/go.mod h1:hzSoBnADG+i/+MXEpSD+58daTjtPTN092NJPA9EKywY=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=

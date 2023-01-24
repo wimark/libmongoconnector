@@ -3,7 +3,7 @@ module github.com/wimark/libmongoconnector
 go 1.18
 
 require (
-	github.com/wimark/libmongo v1.7.1-0.20230124135107-c7e3696413ca
+	github.com/wimark/libmongo v1.7.1-0.20230124143905-eca6dd21e95d
 	github.com/wimark/libwimark v1.8.3
 	go.mongodb.org/mongo-driver v1.9.0
 )
