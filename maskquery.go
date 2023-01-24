@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/globalsign/mgo/bson"
 	wimark "github.com/wimark/libwimark"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // GetSimpleMaskQuery simple UUID mask

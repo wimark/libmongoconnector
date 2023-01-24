@@ -9,8 +9,8 @@ import (
 	mongo "github.com/wimark/libmongo"
 	wimark "github.com/wimark/libwimark"
 
-	"github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
+	// "github.com/globalsign/mgo"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // UnitFactory represents a factory function that
@@ -20,17 +20,18 @@ type UnitFactory func() interface{}
 // ModelInfo is information required by CRUD functions
 type ModelInfo struct {
 	Coll        string
-	Indexes     []mgo.Index
+	Indexes     []mongo.IndexModel
 	ToMongoFn   func(json.RawMessage) (bson.M, error)
 	FromMongoFn func(bson.M) (json.RawMessage, error)
 	MaskF       func(json.RawMessage) (bson.M, error)
 }
 
-func getSimpleTimestampIndex(expiration *time.Duration) mgo.Index {
-	var v mgo.Index
-	v.Key = []string{"timestamp"}
+func getSimpleTimestampIndex(expiration *time.Duration) mongo.IndexModel {
+	var v mongo.IndexModel
+	v.Keys = []string{"timestamp"}
 	if expiration != nil {
-		v.ExpireAfter = *expiration
+		exp := int32(*expiration)
+		v.Options.ExpireAfterSeconds = &exp
 	}
 	return v
 }
@@ -132,7 +133,7 @@ func GenericFactories() ModelMap {
 		},
 		"stat": ModelInfo{
 			Coll: "stats",
-			Indexes: []mgo.Index{
+			Indexes: []mongo.IndexModel{
 				getSimpleTimestampIndex(&expiration),
 			},
 			ToMongoFn: func(v json.RawMessage) (bson.M, error) {
@@ -151,7 +152,7 @@ func GenericFactories() ModelMap {
 		},
 		"client-stat": ModelInfo{
 			Coll: "client_stats",
-			Indexes: []mgo.Index{
+			Indexes: []mongo.IndexModel{
 				getSimpleTimestampIndex(&expiration),
 			},
 			ToMongoFn: func(v json.RawMessage) (bson.M, error) {
@@ -190,7 +191,7 @@ func GenericFactories() ModelMap {
 		},
 		"event": ModelInfo{
 			Coll: "events",
-			Indexes: []mgo.Index{
+			Indexes: []mongo.IndexModel{
 				getSimpleTimestampIndex(&expiration),
 			},
 			ToMongoFn: func(v json.RawMessage) (bson.M, error) {
@@ -245,7 +246,7 @@ func GenericFactories() ModelMap {
 		},
 		"lbs-client-data": ModelInfo{
 			Coll: "lbs_client_data",
-			Indexes: []mgo.Index{
+			Indexes: []mongo.IndexModel{
 				getSimpleTimestampIndex(&expiration),
 			},
 			ToMongoFn: func(v json.RawMessage) (bson.M, error) {
@@ -264,7 +265,7 @@ func GenericFactories() ModelMap {
 		},
 		"lbs-client-coords": ModelInfo{
 			Coll: "lbs_client_coords",
-			Indexes: []mgo.Index{
+			Indexes: []mongo.IndexModel{
 				getSimpleTimestampIndex(&expiration),
 			},
 			ToMongoFn: func(v json.RawMessage) (bson.M, error) {
@@ -505,12 +506,14 @@ func CreateCB(db *mongo.MongoDb,
 			}
 
 			var insertErr error
-			db.SessExec(func(sess *mgo.Session) {
-				var bulk = sess.DB("").C(m_info.Coll).Bulk()
-				bulk.Unordered()
-				bulk.Insert(docs...)
-				_, insertErr = bulk.Run()
-			})
+			// db.SessExec(func(sess *mongo.Session) {
+			// 	var bulk = sess.DB("").C(m_info.Coll).Bulk()
+			// 	bulk.Unordered()
+			// 	bulk.Insert(docs...)
+			// 	_, insertErr = bulk.Run()
+			// })
+
+			insertErr = db.InsertBulk(m_info.Coll, docs...)
 
 			if insertErr != nil {
 				errorList = append(errorList, makeDBError(wimark.ModelError{
@@ -613,10 +616,13 @@ func DeleteCB(db *mongo.MongoDb, payload []byte, m ModelMap) wimark.Document {
 				}{}
 
 				var err error
-				db.SessExec(func(sess *mgo.Session) {
-					err = sess.DB("").C(m_info.Coll).
-						Find(query).Select(bson.M{"_id": 1}).All(&tmp)
-				})
+				// db.SessExec(func(sess *mongo.Session) {
+				// 	err = sess.DB("").C(m_info.Coll).
+				// 		Find(query).Select(bson.M{"_id": 1}).All(&tmp)
+				// })
+
+				err = db.FindWithSelectAll(m_info.Coll, query, bson.M{"_id": 1}, &tmp)
+
 				if err != nil {
 					errors = append(errors, wimark.ModelError{
 						Type:        wimark.WimarkErrorCodeDB,
@@ -628,7 +634,7 @@ func DeleteCB(db *mongo.MongoDb, payload []byte, m ModelMap) wimark.Document {
 			}
 			var data = []wimark.UUID{}
 			for _, id := range ids {
-				if err := db.Remove(m_info.Coll, string(id)); err != nil && err != mgo.ErrNotFound {
+				if err := db.Remove(m_info.Coll, string(id)); err != nil && err != mongo.ErrNoSuchDocuments {
 					errors = append(errors, wimark.ModelError{
 						Type:        wimark.WimarkErrorCodeDB,
 						Description: err.Error(),
