@@ -526,3 +526,26 @@ func GetLBSClientCoordsMaskQuery(mask wimark.LBSClientCoordsMask) bson.M {
 	}
 	return out
 }
+
+// GetRRMGroupMaskQuery query
+func GetRRMGroupMaskQuery(mask wimark.RRMGroupMask) bson.M {
+	var query = []bson.M{}
+
+	if mask.UUID != nil {
+		query = append(query, bson.M{
+			"_id": bson.M{"$in": mask.UUID},
+		})
+	}
+
+	if mask.CPEs != nil {
+		var cpeMask = bson.M{"$in": mask.CPEs}
+		query = append(query, bson.M{"cpes": cpeMask})
+	}
+
+	var finalQuery = bson.M{}
+	if len(query) > 0 {
+		finalQuery["$or"] = query
+	}
+
+	return finalQuery
+}
